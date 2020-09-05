@@ -16,7 +16,6 @@ class MainActivity : AppCompatActivity() {
     var op : Operator = Operator.PLUS
     val d = 0.00001
     var decimalPointUsage : Boolean = false
-    var isCommitted : Boolean = false
 
     enum class Operator {
         PLUS{
@@ -76,39 +75,44 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    fun switchOperator(newOp : Operator){
-        commit()
+    fun switchOperator(newOp : Operator, view : View){
+        val input = commit()
         op = newOp
-        if(isCommitted){
-            var text = partialResultScreen.text.toString()
-            text = text.dropLast(1)
+        if(input == ""){
+            val text = partialResultScreen.text.toString()
+            if(text.isNotEmpty())
+                partialResultScreen.text = text.dropLast(2)
         }
         partialResultScreen.append("$op ")
     }
 
     fun onPlus(view: View){
-        switchOperator(Operator.PLUS)
+        switchOperator(Operator.PLUS, view)
     }
 
     fun onMinus(view: View){
-        switchOperator(Operator.MINUS)
+        switchOperator(Operator.MINUS, view)
     }
 
     fun onDivide(view: View){
-        switchOperator(Operator.DIV)
+        switchOperator(Operator.DIV, view)
     }
 
     fun onMultiply(view: View){
-        switchOperator(Operator.MULT)
+        switchOperator(Operator.MULT, view)
     }
 
     fun onDel(view: View){
-        var input = ioScreen.text.toString()
+        val input = ioScreen.text.toString()
+        if(input.isEmpty())
+            return
+        else if(input[input.length-1] == '.')
+            decimalPointUsage = false
+
         if(op == Operator.EQ){
             onClear(view)
         }
-        if(input[input.length-1] == '.')
-            decimalPointUsage = false
+
         ioScreen.text = input.dropLast(1)
     }
 
@@ -122,7 +126,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun onEquals(view: View){
-        switchOperator(Operator.EQ)
+        switchOperator(Operator.EQ, view)
         ans = a
         if(A != null)
             ioScreen.text = A.toString()
@@ -139,7 +143,7 @@ class MainActivity : AppCompatActivity() {
         ioScreen.text = ans.toString()
     }
 
-    fun commit(){
+    fun commit() : String{
         if(op == Operator.EQ)
             partialResultScreen.text = ""
         val io : String = ioScreen.text.toString()
@@ -166,5 +170,6 @@ class MainActivity : AppCompatActivity() {
         ioScreen.text = ""
         b = 0.0
         decimalPointUsage = false
+        return io
     }
 }
